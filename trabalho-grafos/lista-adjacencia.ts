@@ -1,4 +1,4 @@
-import * as readline from 'node:readline';
+import * as readline from 'node:readline/promises';
 import { stdin, stdout } from 'node:process'
 
 const r1 = readline.createInterface({ input: stdin, output: stdout });
@@ -34,7 +34,7 @@ class Graph {
 
         this.adjacencyList[from].push(to);
 
-        if (!this.isDirected) this.adjacencyList[to].push(from);
+        if (!this.isDirected && from != to) this.adjacencyList[to].push(from);
     }  
 
     getNeighbors(vertex: string): string[] {
@@ -42,7 +42,7 @@ class Graph {
         return [];
     }
 
-    showNeighbors(vertex: string): string[] {
+    showVerticeNeighbors(vertex: string): string[] {
         let neighbors: string[] = this.getNeighbors(vertex);
 
         console.log(`Neighbors of vertex (${vertex}): ${neighbors.join(", ")}`);
@@ -109,7 +109,8 @@ class Graph {
     }
 
     isPathValid(path: string[]): boolean {
-        if (path.length <= 1) return true;
+        if (path.length == 0) return true;
+        if (path.length == 1) return (path[0] in this.adjacencyList);
         
         for (let i=0; i < path.length-1; i++) {
             let edgeExists: boolean = this.isThereEdge(path[i], path[i+1]);
@@ -121,29 +122,97 @@ class Graph {
     }
 }
 
+async function createGraph(): Promise<Graph> {
+    let isDirected: string | boolean = await r1.question("> Selecione se o grafo será direcionado (1-sim, 2-não): ");
+    isDirected = isDirected == '1' ? true : false;
+
+    return new Graph(isDirected);
+}
+
+function showMenu(): void {
+    console.log(`
+|-----------------MENU-----------------|
+|  1. Mostrar grafo                    |
+|  2. Insertir vertice                 |  
+|  3. Inserir aresta                   |
+|  4. Remover vertice                  |
+|  5. Remover aresta                   |
+|  6. Verificar se existe aresta       |
+|  7. Mostrar vizinhos de aresta       |
+|  8. Mostrar graus dos vertices       |
+|  9. Verificar se caminho é válido    |
+|  0. Sair                             |
+|--------------------------------------|`);
+}
+
 async function main(): Promise<void> {
-    let graph = new Graph(true);
+    var isProgramRunning: boolean = true;
 
-    await r1.question("What ", (answer) => {
-        console.log("your anwser: " + answer);
-    })
+    try {
+        let graph: Graph = await createGraph();
 
-    graph.insertVertex("A");
-    graph.insertVertex("B");
-    graph.insertVertex("C");
+        while (isProgramRunning) {
+            let vertexSelectedByUser: string;
+            let vertexFromSelectedByUser: string;
+            let vertexToSelectedByUser: string;
+            let pathSelectedByUser: string | string[];
 
-    graph.insertEdge("A", "B");
-    graph.insertEdge("A", "C");
+            showMenu();
+            const optionSelectedByUser = await r1.question("> Informe a ação desejada: ");
+             
+            switch (optionSelectedByUser) {
+                case '1':
+                    graph.showGraph();
+                    break;
+                case '2':
+                    vertexSelectedByUser = await r1.question("> Informe o vertice a inserir: ");
+                    graph.insertVertex(vertexSelectedByUser);
+                    break;
+                 case '3':
+                    vertexFromSelectedByUser = await r1.question("> Informe o vertice origem: ");
+                    vertexToSelectedByUser = await r1.question("> Informe o vertice destino: ");
+                    graph.insertEdge(vertexFromSelectedByUser, vertexToSelectedByUser);
+                    break;
+                 case '4':
+                    vertexSelectedByUser = await r1.question("> Informe o vertice a remover: ");
+                    graph.removeVertex(vertexSelectedByUser);
+                    break;
+                 case '5':
+                    vertexFromSelectedByUser = await r1.question("> Informe o vertice origem: ");
+                    vertexToSelectedByUser = await r1.question("> Informe o vertice destino: ");
+                    graph.removeEdge(vertexFromSelectedByUser, vertexToSelectedByUser);
+                    break;
+                 case '6':
+                    vertexFromSelectedByUser = await r1.question("> Informe o vertice origem: ");
+                    vertexToSelectedByUser = await r1.question("> Informe o vertice destino: ");
+                    console.log(graph.isThereEdge(vertexFromSelectedByUser, vertexToSelectedByUser));
+                    break;
+                 case '7':
+                    vertexSelectedByUser = await r1.question("> Informe o vertice: ");
+                    graph.showVerticeNeighbors(vertexSelectedByUser);
+                    break;
+                case '8':
+                    graph.showVerticesDegree();
+                    break;
+                case '9':
+                    pathSelectedByUser = await r1.question("> Informe o caminho no seguinte formato (V1,V2,V3...Vn): ");
+                    pathSelectedByUser = pathSelectedByUser.replace(" ", "").split(",");
 
-    graph.insertEdge("C", "B");
-
-    graph.showNeighbors("A");
-
-    graph.showGraph();
-
-    graph.showVerticesDegree();
-
-    console.log(graph.isPathValid(["A", "C", "B"]));
+                    if (pathSelectedByUser?.length) console.log(graph.isPathValid(pathSelectedByUser));
+                    break;
+                case '0':
+                    console.log("Au revoir...");
+                    
+                    isProgramRunning = false;
+                    break;
+                default:
+                    console.log("Ação não definida");
+                    break;
+            }
+        }    
+    } catch (error) {
+        console.error(error);
+    }
 }
 
 main();
