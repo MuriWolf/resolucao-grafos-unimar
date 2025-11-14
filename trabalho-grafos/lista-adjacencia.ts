@@ -15,7 +15,7 @@ interface VerticesDegree {
     }
 }
 
-class Graph {
+export class Graph {
     adjacencyList: AdjacencyList;
     isDirected: boolean;
 
