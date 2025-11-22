@@ -15,7 +15,7 @@ interface VerticesDegree {
     }
 }
 
-export class Graph {
+class Graph {
     adjacencyList: AdjacencyList;
     isDirected: boolean;
 
@@ -215,5 +215,7 @@ async function main(): Promise<void> {
     }
 }
 
-main();
+// main();
+
+export default Graph;
 

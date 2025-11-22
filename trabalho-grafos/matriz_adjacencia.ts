@@ -299,11 +299,7 @@ async function main(): Promise<void> {
 
 main();
 
-
-
-
-
-
+export default Graph;
 
 /* Função para obter matriz de adjacencia 
 

@@ -232,6 +232,6 @@ async function main(): Promise<void> {
     }
 }
 
-main();
+// main();
 
 export default Graph;

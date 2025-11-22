@@ -1,18 +1,18 @@
 import { graph1 } from "./graph-examples";
-import { Graph } from "./lista-adjacencia";
+import Graph from "./lista-adjacencia";
 
 interface QueueItem {
     vertex: string,
     path: string[]
 }
 
-function bfs(graph: Graph, statingVertex: string): string[] {
+function bfs(graph: Graph, startingVertex: string): string[] {
   let verticesQueue: string[] = []; // push e shift
   let verticesVisited: string[] = [];
 
-  if (graph.getNeighbors(statingVertex).length === 0) return []
+  if (graph.getNeighbors(startingVertex).length === 0) return []
 
-  verticesQueue.push(statingVertex);
+  verticesQueue.push(startingVertex);
   while (verticesQueue.length > 0) {
     const vertexVisited = verticesQueue.shift();
 
@@ -35,17 +35,17 @@ function bfs(graph: Graph, statingVertex: string): string[] {
   return verticesVisited;
 }
 
-function bfsShortestPath(graph: Graph, statingVertex: string, targetVertex: string): string[] {
+function bfsShortestPath(graph: Graph, startingVertex: string, targetVertex: string): string[] {
   let queue: QueueItem[] = []; // push e shift
   let verticesVisited: string[] = [];
 
   // Caso não o ponto de início ou final não tenham vizinhos, não há caminho
   if (
-    graph.getNeighbors(statingVertex).length === 0 ||
+    graph.getNeighbors(startingVertex).length === 0 ||
     graph.getNeighbors(targetVertex).length === 0
   ) return [];
 
-  queue.push({ vertex: statingVertex, path: [statingVertex] });
+  queue.push({ vertex: startingVertex, path: [startingVertex] });
 
   while (queue.length > 0) {
     const queueItemVisited = queue.shift();
